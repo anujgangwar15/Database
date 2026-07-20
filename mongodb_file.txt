@@ -1,0 +1,152 @@
+db.collection.insertOne({
+  "maker": "Hyundai",
+  "model": "Creta",
+  "fuel_type": "Diesel",
+  "transmission": "Manual",
+  "engine": {
+    "type": "Naturally Aspirated",
+    "cc": 1493,
+    "torque": "250 Nm"
+  },
+  "features": [
+    "Sunroof",
+    "Leather Seats",
+    "Wireless Charging",
+    "Ventilated Seats",
+    "Bluetooth"
+  ],
+  "sunroof": true,
+  "airbags": 6
+});
+
+-------------------------------------------------------------------------------------
+
+db.collection.insertMany([
+  {
+    "maker": "Hyundai",
+    "model": "Creta",
+    "fuel_type": "Diesel",
+    "transmission": "Manual",
+    "engine": {
+      "type": "Naturally Aspirated",
+      "cc": 1493,
+      "torque": "250 Nm"
+    },
+    "features": [
+      "Sunroof",
+      "Leather Seats",
+      "Wireless Charging",
+      "Ventilated Seats",
+      "Bluetooth"
+    ],
+    "sunroof": true,
+    "airbags": 6
+  },
+  {
+    "maker": "Maruti Suzuki",
+    "model": "Baleno",
+    "fuel_type": "Petrol",
+    "transmission": "Automatic",
+    "engine": {
+      "type": "Naturally Aspirated",
+      "cc": 1197,
+      "torque": "113 Nm"
+    },
+    "features": [
+      "Projector Headlamps",
+      "Apple CarPlay",
+      "ABS"
+    ],
+    "sunroof": false,
+    "airbags": 2
+  }
+]);
+
+------------------------------------------------------------------------------------
+
+CRUD Operations
+Read (Find Data)
+
+Find all:
+db.Collection1.find()
+
+Find specific document:
+db.Collection1.find({ "name": "Anuj" })
+
+Update (Modify Data)
+
+Update one:
+db.Collection1.updateOne({ "name": "Anuj" }, { $set: { "age": 26 } })
+
+
+Update many:
+db.Collection1.updateMany({}, { $set: { "status": "active" } })
+
+Delete (Remove Data)
+
+Delete one:
+db.Collection1.deleteOne({ "name": "Anuj" })
+
+Delete many:
+db.Collection1.deleteMany({ "age": { $lt: 20 } })
+
+Delete entire collection:
+db.Collection1.drop()
+--------------------------------------------------------------------------------------
+
+Comparison Operators
+
+Greater Than ($gt):
+
+db.Collection1.find({ "age": { $gt: 25 } })
+
+Less Than ($lt):
+db.Collection1.find({ "age": { $lt: 30 } })
+
+Greater/Less Than or Equal to ($gte, $lte):
+db.Collection1.find({ "age": { $lte: 20 } })
+
+--------------------------------------------------------------------------------------
+
+Logical Operators
+
+OR ($or): 
+db.Collection1.find({ $or: [ { "name": "Anuj" }, { "age": 25 } ] })
+
+AND ($and):
+db.Collection1.find({ $and: [ { "age": { $gt: 20 } }, { "skill": "Java" } ] })
+
+-------------------------------------------------------------------------------------
+
+Element/Array Operators (Bonus)
+
+In ($in):
+Command: db.Collection1.find({ "age": { $in: [20, 25, 30] } })
+
+------------------------------------------------------------------------------------
+
+Sorting
+
+Ascending Order:
+db.Collection1.find().sort({ "name": 1 })
+
+Descending Order:
+db.Collection1.find().sort({ "age": -1 })
+
+Descending and Ascending (both):
+db.Collection1.find().sort({ "age": -1, "name": 1 })
+
+-------------------------------------------------------------------------------------
+
+Indexes
+
+Ascending Index (1):
+db.Collection1.createIndex({ "name": 1 })
+
+Descending Index (-1):
+db.Collection1.createIndex({ "age": -1 })
+
+Ascending and Descending Index(Compound):
+db.Collection1.createIndex({ "name": 1, "age": -1 })
+
+-------------------------------------------------------------------------------------
