@@ -1,0 +1,222 @@
+MySQL Practice Problems using Product Table
+1. Table Definition
+CREATE TABLE Product (
+    product_id INT PRIMARY KEY,
+    product_name VARCHAR(50),
+    category VARCHAR(50),
+    price DECIMAL(10,2),
+    quantity INT
+);
+2. Sample Data (10 Records)
+INSERT INTO Product VALUES
+(101, 'Laptop', 'Electronics', 75000, 10),
+(102, 'Smartphone', 'Electronics', 45000, 25),
+(103, 'Tablet', 'Electronics', 30000, 15),
+(104, 'Headphones', 'Accessories', 2000, 50),
+(105, 'Keyboard', 'Accessories', 1500, 40),
+(106, 'Mouse', 'Accessories', 800, 60),
+(107, 'Monitor', 'Electronics', 18000, 20),
+(108, 'Printer', 'Electronics', 12000, 12),
+(109, 'Webcam', 'Accessories', 2500, 30),
+(110, 'External Hard Disk', 'Storage', 6000, 18);
+Problem Statements
+
+Problem 1(Cursor)
+
+Write a MySQL stored procedure using a CURSOR to iterate through all products in the Product table and increase the price of each product by 10% if the quantity is less than 20.
+
+DELIMITER //
+
+CREATE PROCEDURE UpdateLowStockPrices()
+BEGIN
+    -- 1. Declare variables to store data from the cursor
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE p_id INT;
+    DECLARE p_price DOUBLE;
+    DECLARE p_qty INT;
+    
+    -- 2. Declare the cursor
+    DECLARE product_cursor CURSOR FOR 
+    SELECT product_id, price, quantity FROM Product;
+    
+    -- 3. Declare a handler to exit the loop when no more rows exist
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+    -- 4. Open the cursor
+    OPEN product_cursor;
+    
+    read_loop: LOOP
+        -- 5. Fetch data into variables
+        FETCH product_cursor INTO p_id, p_price, p_qty;
+        
+        -- Exit if no more rows
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+        
+        -- 6. Conditional logic: Increase price by 10% if quantity < 20
+        IF p_qty < 20 THEN
+            UPDATE Product 
+            SET price = p_price * 1.10 
+            WHERE product_id = p_id;
+        END IF;
+    END LOOP;
+    
+    -- 7. Close the cursor
+    CLOSE product_cursor;
+END //
+
+DELIMITER ;
+
+CALL UpdateLowStockPrices();
+
+Problem 2
+
+Create a MySQL function that accepts a product_id and returns the price of the product.
+
+Query:
+delimiter //
+drop function if exists productprime//
+create function productprime(p_pro_id int)
+returns int deterministic
+
+begin
+declare v_price decimal(10,2);
+select price into v_price from product
+where product_id = p_pro_id;
+return v_price;
+end //
+
+SELECT productprime(101);
+
+Problem 3
+
+Create a MySQL function that takes product_id as input and returns the total stock value of that product (price × quantity).
+
+Query:
+
+delimiter //
+drop function if exists stockvalue//
+create function stockvalue(p_pro_id int)
+returns int deterministic
+
+begin
+declare v_price decimal(10,2);
+-- declare t_stokeprice decimal(10,2);
+declare v_quantity int default 0;
+
+select price, quantity into v_price,v_quantity from product
+where product_id = p_pro_id;
+return v_price * v_quantity;
+end //
+
+SELECT stockvalue(101);
+
+
+Problem 4
+
+Create a MySQL function that accepts a category name and returns the total number of products available in that category.
+
+Query:
+delimiter //
+create function totalproduct( p_cat_name varchar(25))
+returns int deterministic
+begin
+declare totalquantity int default 0;
+select sum(quantity) into totalquantity from product
+where category = p_cat_name
+group by category;
+return totalquantity;
+end //
+
+select totalproduct('Accessories');
+
+Problem 5
+
+Create a MySQL function that takes a product_id and returns "High Stock" if quantity > 30, otherwise return "Low Stock".
+
+Query:
+delimiter //
+drop function if exists stockquantity//
+create function stockquantity(p_pro_id int)
+returns int deterministic
+
+begin
+declare status varchar(20);
+-- declare t_stokeprice decimal(10,2);
+declare v_quantity int default 0;
+
+select  quantity into v_quantity from product
+where product_id = p_pro_id;
+if v_quantity >30 then set status ='High Stock';
+else set status ='Low Stock';
+end if;
+return status;
+end //
+
+SELECT stockquantity(101);
+
+Problem 6
+
+Create a MySQL function that takes a product_id and returns the product name along with its category in the format:
+ProductName - Category.
+
+Query:
+
+delimiter //
+drop function if exists productdetail//
+create function productdetail(p_id int)
+returns varchar(255) deterministic
+begin
+declare v_result varchar(255);
+select concat(product_name,' - ',category) into v_result from product
+where product_id = p_id;
+return v_result;
+end //
+select productdetail(101);
+
+Problem 7 (Trigger)
+
+Create a MySQL BEFORE DELETE trigger on the Product table.
+
+Whenever a product record is about to be deleted from the Product table, the trigger should store the details of the record being deleted (product_id, product_name, category, price, quantity) along with the current date and time into the Product_Log table.
+
+This ensures that all deleted product records are stored in the log table before the deletion occurs for auditing purposes.
+
+CREATE TABLE Product_Log (
+    log_id INT PRIMARY KEY AUTO_INCREMENT,
+    product_id INT,
+    product_name VARCHAR(50),
+    category VARCHAR(50),
+    price DOUBLE,
+    quantity INT,
+    deleted_at DATETIME
+);
+
+DELIMITER //
+
+CREATE TRIGGER BeforeProductDelete
+BEFORE DELETE ON Product
+FOR EACH ROW
+BEGIN
+    INSERT INTO Product_Log (
+        product_id, 
+        product_name, 
+        category, 
+        price, 
+        quantity, 
+        deleted_at
+    )
+    VALUES (
+        OLD.product_id, 
+        OLD.product_name, 
+        OLD.category, 
+        OLD.price, 
+        OLD.quantity, 
+        NOW()
+    );
+END //
+
+DELIMITER ;
+
+SELECT * FROM Product_Log;
