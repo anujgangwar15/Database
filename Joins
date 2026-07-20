@@ -1,0 +1,141 @@
+JOINS(EMP-DB)
+1.	List  deptno, dname along with total salary in each department.
+
+select d.deptno,d.dname,sum(e.sal) as total_salary
+from  dept as d
+inner join emp as e
+on e.deptno = d.deptno
+group by d.deptno,d.dname;
+
+
+2.	List details from emp, dept and salgrade table excluding clerks and employees with grade 1. Order on their names.
+
+select e.ename,e.empno,e.job,e.sal,e.deptno,d.dname,s.grade
+from emp as e
+join dept as d
+on e.deptno=d.deptno
+join salgrade as s
+on e.sal between s.losal and s.hisal
+where e.job != 'cleark' And  s.grade != 1
+order by e.ename;
+
+
+List employee with grade 3 or 4.
+
+select e.ename,e.sal,s.grade
+from emp as e
+join salgrade as s
+on e.sal between s.losal and s.hisal
+where s.grade=3 or s.grade=4
+;
+
+List employees located in dallas.
+select e.ename,d.loc,e.deptno
+from emp as e
+join dept as d
+on e.deptno = d.deptno
+where d.loc ='dallas'
+;
+
+
+
+
+
+
+
+
+List employee and department details for department 30 and 40.
+
+select e.ename,d.dname,e.deptno,e.sal,e.empno
+from emp as e
+join dept as d
+on e.deptno = d.deptno
+where d.deptno=30 or d.deptno=40
+;
+
+List all employees who earn less than their managers. List their managers details also.
+
+select e.ename,e.empno,e.sal,m.ename,m.empno,m.sal,e.deptno,m.deptno
+from emp as e
+join emp as m
+on e.mgr = m.empno
+where  e.sal < m.sal;
+
+Find all employees who joined the company before their manager.
+
+select e.ename,e.empno,e.sal,m.ename,m.empno,m.sal,e.deptno,m.deptno,e.mgr,m.mgr,e.hiredate,m.hiredate
+from emp as e
+join emp as m
+on e.mgr = m.empno
+where m.hiredate> e.hiredate;
+
+JOINS(RTU-DB)
+1.	Display RTU details along with sensor details for all RTU's
+
+select r.rtu_id, r.location,r.ip_address,s.sensor_id
+from rtu as r
+join sensors as s
+on s.rtu_id = r.rtu_id
+
+
+2.	Display user details and sensor details controlled by each user.
+
+select c.sensor_id, u.user_id,u.user_name , u.role
+from users as u
+join controller as c
+on c.user_id = u.user_id
+
+3.	Display user details and sensor details controlled by each user alongwith RTU details.
+
+select u.USER_ID,
+    u.USER_NAME,
+    u.ROLE,
+    s.SENSOR_ID,
+    s.SENSOR_TYPE,
+    s.STATUS,
+    s.REQ_VAL,
+    s.CURR_VAL,
+    r.RTU_ID,
+    r.LOCATION,
+    r.IP_ADDRESS from users u
+join controller c
+on u.user_id = c.user_id
+join sensors s
+on s.sensor_id = c.sensor_id
+join rtu r
+on r.rtu_id=s.rtu_id;
+
+4.	List how many sensors are controlled by each user. Display user_name and count. Sort on count.
+
+select u.user_name, count(c.sensor_id)
+from users u
+join controller c
+on u.user_id = c.user_id
+group by u.user_id
+order by count(c.sensor_id) Desc;
+
+5.	Display user details who are controlling sensor_type TEMPERATURE
+
+
+select u.user_id, u.user_name, u.role,s.sensor_type from users u
+join controller c
+on c.user_id=u.user_id
+join sensors s
+on s.sensor_id = c.sensor_id
+where s.sensor_type ='TEMPERATURE';
+
+
+
+
+6.	Display user details that is controlling sensor S801 along with sensor details and location.
+
+select u.user_id, u.user_name, u.role,s.status,s.rtu_id,r.location, s.sensor_type,s.req_val,s.curr_val
+from users u
+join controller c
+on c.user_id =u.user_id
+join sensors s
+on s.sensor_id=c.sensor_id
+
+join rtu r
+on r.rtu_id =s.rtu_id
+where s.sensor_id = 'S801';
